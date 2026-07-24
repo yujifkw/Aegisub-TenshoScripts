@@ -1,0 +1,13 @@
+core/globals.lua=1.0.0
+core/i18n.lua=1.0.0
+functions/tensho_colortrack.lua=1.0.0
+functions/tensho_counter.lua=1.0.0
+functions/tensho_fadeworks.lua=3.0.0
+functions/tensho_fixlines.lua=1.0.0
+functions/tensho_flashes.lua=1.0.0
+functions/tensho_gradient.lua=1.0.0
+functions/tensho_shake.lua=1.0.0
+functions/tensho_splitlines.lua=1.0.0
+functions/tensho_textfx.lua=1.0.0
+functions/tensho_transform.lua=1.0.0
+functions/tensho_ytktfade.lua=1.0.0

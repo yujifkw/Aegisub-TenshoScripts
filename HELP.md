@@ -1,416 +1,272 @@
-<h1 id="-português"></h1>
-<div align="left">
-  <a href="#-english">
-    <img src="https://img.shields.io/badge/Lang-English-blue?style=for-the-badge&logo=united-kingdom" alt="English">
-  </a>
-</div>
-
-# 🐉 Documentação Oficial: TenshoScripts v1.0.3
-
-Bem-vindo à documentação técnica do **TenshoScripts**. Este toolkit foi projetado para levar o Aegisub ao limite, focando em automações de Motion Graphics para a cena **Nerdcore** e **AMVs**, resolvendo limitações históricas de outros scripts.
-
----
-
-## 🛠️ Diferenciais Técnicos da Engine
-
-* **Preservação Estrutural Rigorosa:** O motor lê, protege e remonta as tags de posicionamento e tipografia (como `\pos`, `\an` e `\fs`) em cada fatia gerada. Isso garante que o layout original e o tamanho da sua legenda nunca sejam quebrados ou perdidos, independentemente da complexidade do efeito.
-* **Navegação em State Machine:** Transite entre ferramentas, painéis básicos e avançados de forma contínua usando o botão **"Voltar"**, sem duplicar processamento ou fechar o script.
-* **Blindagem UTF-8 (Anti-Crash):** Captura segura de caracteres de 1 a 4 bytes, eliminando o clássico *C++ Exception* ao fatiar letras acentuadas ou emojis.
-* **Motor de "Culling" e Limite de 40ms:** Ferramentas de fatiamento contínuo geram as fatias apenas onde a animação ocorre, envelopando o tempo inativo em "Linhas Clean" estáticas. Isso reduz o peso do arquivo `.ass` em até 80% e elimina travamentos no player de vídeo.
-* **Motor de Viagem no Tempo:** Fatiar uma linha normalmente quebra tags como `\fad` e `\t`. O TenshoScripts recalcula dinamicamente os tempos absolutos dessas tags para tempos relativos (suportando offsets negativos nativos do VSFilter), mantendo seus fades e cores perfeitamente intactos nas fatias.
-
----
-
-## 1. Fadeworks Adaptado
-Aplica transições de visibilidade complexas de forma simplificada, unindo Alpha e Cor.
-
-![GUI Fadeworks](ASSETS/fadeworks_pt.png)
-
-### Parâmetros:
-* **Fade In/Out:** Duração em milissegundos da entrada e saída ou porcentagem relativa (`0.4` fará o fade em 40% do tempo da linha).
-* **Alpha/Colour:** Define se o efeito afetará apenas a transparência ou se haverá transição de cores cruzadas.
-* **From/To:** Cores de início e fim do fade.
-* **By Letter:** Ativa o sequenciamento caractere por caractere (com purga automática de tags de karaoke residuais para evitar quebra do retextmod).
-* **Direção:** Escolha entre `LTR` (esquerda para direita), `RTL` (direita para esquerda), `Meio->Fora` ou `Fora->Meio` (com cálculo radial perfeito para números pares e ímpares de caracteres).
-
----
-
-## 2. Gradiente Fácil (Multi-Ponto)
-Gera gradientes letra por letra com até 5 cores chave e interpolação avançada, ou automaticamente através de Estilos.
-
-<div align="center">
-  <table>
-    <tr>
-      <td align="center" width="50%">
-        <strong>Gradiente Multi-Ponto</strong><br>
-        <img src="ASSETS/gradient_pt.png" alt="GUI Gradient">
-      </td>
-      <td align="center" width="50%">
-        <strong>Gradiente: Transição de Estilo</strong><br>
-        <img src="ASSETS/gradient_sty_pt.png" alt="GUI Gradient Styles">
-      </td>
-    </tr>
-  </table>
-</div>
-
-### Parâmetros:
-* **Interpolar HSL:** Transita as cores pelo espectro de Matiz, Saturação e Luminosidade em vez do espaço RGB, resultando em cores vibrantes que não passam por tons de cinza ou marrom no meio do caminho.
-* **Cores Chave (1-5):** Define os pontos de parada. Ative as cores intermediárias para gradientes ultracomplexos.
-* **Checkboxes Target:** Aplique o gradiente seletivamente apenas em tags específicas (`\c`, `\3c` ou `\4c`).
-* **Estilos (A, B, C):** Lê automaticamente sua tabela de estilos. Transição linear (A -> B) ou ancorada em três pontos (A -> C -> B).
-* **Interpolação Completa:** Transita matematicamente cores, bordas (`\bord`), sombras (`\shad`) e tamanhos (`\fs`), gerando efeitos de perspectiva 3D ou crescimento orgânico do texto.
-
----
-
-## 3. Piscadas
-Ideal para sincronizar o impacto visual com a batida da música.
-
-![GUI Flashes](ASSETS/flashes_pt.png)
-
-### Parâmetros:
-* **Cor do Flash:** Cor que a legenda assumirá durante o pico (BPM).
-* **Intervalo (ms):** Define o tempo entre as alternâncias.
-* **Suavizar Transição:** Quando desmarcado, faz cortes secos. Quando marcado, cria um efeito pulsante interligando os flashes com `\t`.
-
----
-
-## 4. Dividir Linhas
-Divide frases em camadas individuais mantendo o layout original estrito.
-
-![GUI Split](ASSETS/split_pt.png)
-
-### Funcionalidades:
-* **Modos:** Dividir por **Caractere** ou por **Palavra**.
-* **Preservação Tipográfica:** Extrai e remonta tags globais e locais, incluindo `\fs` original e ancoragens horizontais.
-* **Filtro de Vácuo:** Detecta espaços e calcula sua métrica (`text_extents`) para manter o kerning correto, mas aborta a criação de linhas inúteis vazias na grid.
-
----
-
-## 5. Transformar (\t)
-Criação rápida de animações de transição temporal.
-
-![GUI Transform](ASSETS/transform_pt.png)
-
-### Parâmetros:
-* **Intervalo (ms):** Define tempo de Início e Fim (o fim herda a duração da linha por padrão).
-* **Alvos de Cor & Tamanho:** Permite transicionar `\1c`, `\2c`, `\3c`, `\4c`, escalar fonte (`\fs`) e opacidade global (`\alpha`) simultaneamente.
-
----
-
-## 6. Texto & Fontes FX
-Um poderoso motor integrado de motion tipográfico. Substitui o antigo Random Fonts e engloba 5 ferramentas de manipulação letreiral com geração de "linhas clean" dinâmicas.
-
-![GUI TextFX](ASSETS/textfx_pt.png)
-
-### Efeitos Disponíveis:
-* **Variar Fontes:** Sorteia fontes de uma lista predefinida. **Normalização Inclusa:** Utiliza um dicionário de "Altura-X" invisível para corrigir a caixa das fontes (ex: *Lucida Console* ganha escala diferente para não "murchar" perto da *Roboto*).
-* **Typewriter (Máquina de Escrever):** Revela as letras em sequência baseada em `ms/char`. 
-* **Embaralhar (Unscramble):** Efeito de descriptografia (Hacking). Antes de revelar a letra real, exibe símbolos aleatórios por 120ms.
-* **Caos Símbolos:** O texto sofre corrupção contínua ao longo do tempo (30% de chance de virar um caractere corrompido a cada frame fatiado).
-* **Inverter Letras:** Substitui letras pelos seus equivalentes espelhados em código Unicode. Se as direções **Horizontal (X)** ou **Ambos (X+Y)** forem escolhidas, a string inteira é reordenada de trás pra frente (Espelho Verdadeiro).
-
-### A Mágica do "Pulo Dinâmico" (Centralizar)
-Ao ativar o **Pulo Dinâmico** no Typewriter ou Embaralhar, as sílabas que ainda não foram reveladas são fisicamente *apagadas* da linha em vez de apenas escondidas com alpha. Se a sua linha tiver alinhamento central (`\an5`, `\an8`, etc), a frase inteira se recalcula e "pula" para o centro a cada nova letra impressa na tela!
-
----
-
-## 7. YtktFade
-Otimizador de compressão para YouTube.
-
-![GUI Ytkt](ASSETS/ytkt_pt.png)
-
-### Parâmetros:
-* **Alpha Constante:** Injeta alphas que forçam os renderizadores web (VP9/AV1) a manter a qualidade da borda do karaokê.
-* **Ativar \2c:** Aplica cores secundárias de preenchimento.
-
----
-
-## 8. Fixar Linhas
-Padronização de posição por cálculos matemáticos relativos.
-
-![GUI FixLines](ASSETS/fix_pt.png)
-
-### Funcionalidades:
-* **Forçar Alinhamento (\an5):** Anula alinhamentos prévios e centraliza o ponto de âncora.
-* **Cálculo Delta:** Captura a resolução real (`PlayRes`) e posiciona legendas em exata proporção.
-
----
-
-## 9. Glitch Dinâmico (Pago)
-Gerador avançado de aberração cromática (RGB Split) estático e animado.
-
-![GUI Glitch](ASSETS/glitch_pt.png)
-
-### Diferenciais Técnicos:
-* **Flicker Tipográfico:** Ative "Negrito" ou "Itálico" e o motor joga uma moeda (50% de chance) a cada frame gerado por camada: o glitch piscará com quebra de peso de fonte durante o tempo da distorção, criando um visual extremamente agressivo.
-* **Modo Caos (Random Pos):** Solta a âncora do núcleo (`\c1`). Enquanto as bordas tremem no X, o núcleo vibra em direções aleatórias no eixo Y.
-* **Tipos de Execução:** Escolha fatiar todo o texto ("Sempre") ou gerar a corrupção apenas no **Começo** ou no **Final** da linha, otimizando o restante do tempo com Culling.
-* **Integração com Karaokê:** Gere glitchs sílaba por sílaba (sincronizado com `\k` nativo ou ReverseK). 
-* **Centralizar Karaoke:** Usa a mesma engenharia de "Pulo Dinâmico" do *Text FX* para forçar a centralização do texto enquanto as palavras vão aparecendo no glitch!
-
----
-
-## 10. Onda Arco-Íris (Pago)
-Cria pulsos radiais cromáticos varrendo o texto sem sobrepor camadas no Aegisub.
-
-![GUI Rainbow](ASSETS/rainbow_pt.png)
-
-### Parâmetros:
-* **Usar Cor do Estilo:** No lugar das cores RGB fixas, você pode selecionar um estilo secundário. O motor utilizará a matemática de uma **Curva Senoidal (`math.sin`)** para gerar um "pulso" macio (fade-in e fade-out perfeito), substituindo a cor atual pela cor do estilo de forma líquida.
-* **Lógica de Passo Blindada:** Opera com um limite inferior rígido de `40ms`, impedindo a criação de sanduíches de milissegundos que engasgariam renderizadores.
-* **Culling de Ponta a Ponta:** Calcula de forma absoluta onde a onda termina na última letra e compacta todos os segundos restantes da legenda original numa única linha estática.
-
----
-
-## 11. Karaoke Reverso (Pago)
-Inverte a lógica do karaokê: a linha inteira já está cantada na tela e vai *desaparecendo* conforme os tempos de `\k` estouram.
-
-### Diferencial Técnico:
-Processado sem o uso instável de chaves `\t` com alpha cruzado. Ele varre as sílabas e aplica estados binários de visibilidade `\alpha&H00&` (atual/futuro) e `\alpha&HFF&` (passado), garantindo zero bugs de cintilação, além de preservar as tags de tamanho (`\fs`) e posições globais da linha base.
-
----
-
-## 12. Curvas (Pago) - BETA
-Substitui o engessado `\move` do Aegisub por interpolação de movimento via Easing.
-
-<div align="center">
-  <table>
-    <tr>
-      <td align="center" width="50%">
-        <strong>Modo Básico (Quad/Cubic)</strong><br>
-        <img src="ASSETS/curves_pt.png" alt="GUI Curves">
-      </td>
-      <td align="center" width="50%">
-        <strong>Modo Bézier Avançado</strong><br>
-        <img src="ASSETS/curves_adv_pt.png" alt="GUI Curves Advanced">
-      </td>
-    </tr>
-  </table>
-</div>
-
-### Parâmetros Easing:
-* **Usar Cubic:** Checkbox rápido para alternar a aceleração entre o cálculo Quadrático (`t * t`) e Cúbico (`t ^ 3`), entregando um "arranque" muito mais forte.
-* **Modos CSS Padrão:** O painel avançado inclui presets da indústria como *Expo In*, *Expo Out*, *Back In-Out* e *Back Out* (Movimento elástico perfeito).
-* **Análise Vetorial de Bézier:** Edite coordenadas `x1, y1` e `x2, y2` idênticas às ferramentas de interpolação do After Effects.
-* **Preservação de Sub-Efeitos:** Fatiar em dezenas de pedaços quebraria um fade-in. A engine nativa do Curves converte todas as suas durações globais e joga-as para tempos negativos localizados `\t(-offset, ...)` para manter transições de cor e afins intocadas durante o voo da curva!
-
----
-
-<br />
-
-<div align="center">
-  <a href="https://ko-fi.com/s/5a3d4b8736">
-    <img src="https://img.shields.io/badge/Desbloquear_TenshoScripts_+-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" width="750">
-  </a>
-</div>
-
-<br />
-<br />
-
-<div align="center">
-  <p>Desenvolvido por <strong><a href="https://x.com/otenshy">Tensho</a></strong>. Licença MIT.</p>
-</div>
-
-<br />
-<hr />
-<br />
-<br />
-
 <h1 id="-english"></h1>
 <a href="#-português">
     <img src="https://img.shields.io/badge/Lang-Português-green?style=for-the-badge&logo=brazil" alt="Português">
   </a>
   
-# 🐉 Official Documentation: TenshoScripts v1.0.3
+# Official Documentation: TenshoScripts v2.0.0
 
-Welcome to the technical documentation of **TenshoScripts**. This toolkit was designed to push Aegisub to its absolute limits, focusing on Motion Graphics automation for the **Nerdcore** and **AMV** scene, solving historical limitations of other scripts.
+Welcome to the **TenshoScripts** manual. This toolkit was created to make your life easier when animating subtitles. Our main focus is to streamline and professionalize the subtitle workflow specifically for **YouTube**. Our engine ensures that your subtitles never break or get displaced while applying complex effects.
 
 ---
 
-## 🛠️ Engine's Core Technical Features
+## 📑 Tool Index
 
-* **Strict Structural Preservation:** The engine reads, protects, and rebuilds positioning and typographic tags (such as `\pos`, `\an`, and `\fs`) in every generated slice. This ensures your subtitle's original layout and size are never broken or lost, regardless of the effect's complexity.
-* **State Machine Navigation:** Seamlessly transition between tools, basic, and advanced panels using the **"Back"** button, without duplicating processing tasks or closing the script.
-* **UTF-8 Shielding (Anti-Crash):** Safe capture of 1 to 4-byte characters, completely eliminating the classic *C++ Exception* crash when slicing accented letters or emojis.
-* **"Culling" Engine & 40ms Limit:** Continuous slicing tools only generate slices where the animation actually occurs, wrapping the inactive time into static "Clean Lines". This reduces the `.ass` file weight by up to 80% and eliminates video player stuttering.
-* **Time Travel Engine:** Slicing a line usually breaks global tags like `\fad` and `\t`. TenshoScripts dynamically recalculates the absolute times of these tags into relative times (supporting VSFilter's native negative offsets), keeping your fades and colors perfectly intact across slices.
+**⚙️ Settings**
+* [0. Global Settings](#0-global-settings)
+
+**🟢 Free Tools**
+* [1. Adapted Fadeworks](#1-adapted-fadeworks)
+* [2. Easy Gradient](#2-easy-gradient-multi-point)
+* [3. Flashes](#3-flashes)
+* [4. Split Lines](#4-split-lines)
+* [5. Transform (\t)](#5-transform-t)
+* [6. Text & Fonts FX](#6-text--fonts-fx)
+* [7. Fix Lines](#7-fix-lines)
+* [8. YtktFade](#8-ytktfade)
+* [9. Number Counter](#9-number-counter)
+* [10. Shake](#10-shake)
+* [11. Color Tracker](#11-color-tracker)
+
+**💎 TenshoScripts + (Exclusive)**
+* [12. Dynamic Glitch](#12-dynamic-glitch-paid)
+* [13. Rainbow Wave](#13-rainbow-wave-paid)
+* [14. KaraFX (Karaoke & ReverseK)](#14-karafx-karaoke--reversek-paid)
+* [15. Curves [BETA]](#15-curves-paid---beta)
+
+---
+
+## 0. Global Settings
+Where you customize how the script behaves in your Aegisub.
+
+![GUI Config](ASSETS/config_en.png)
+
+### How the options work:
+* **Language / Idioma:** Changes the language of all buttons and warnings (English or Portuguese).
+* **Transparency Mode (Alpha):** How you prefer to type transparency values inside the tools. It can be Aegisub's native hexadecimal code (e.g., `&HFF&`) or a simple percentage from `0 to 100%`.
+* **Check for updates automatically:** If checked, the script searches the internet every time you open it to see if there are new features and downloads them automatically.
 
 ---
 
 ## 1. Adapted Fadeworks
-Applies complex visibility transitions in a simplified way, merging Alpha and Color.
+Fadeworks makes your text appear and disappear smoothly (Fade In / Fade Out).
 
 ![GUI Fadeworks](ASSETS/fadeworks_en.png)
 
-### Parameters:
-* **Fade In/Out:** Input and output duration in milliseconds or relative percentage (`0.4` will fade over 40% of the line's time).
-* **Alpha/Colour:** Defines if the effect will only affect transparency or if there will be cross-color transitions.
-* **From/To:** Starting and ending fade colors.
-* **By Letter:** Activates character-by-character sequencing (with automatic purging of residual karaoke tags to prevent retextmod breakage).
-* **Direction:** Choose between `LTR` (Left-to-Right), `RTL` (Right-to-Left), `Mid->Out`, or `Out->Mid` (with perfect radial calculation for both even and odd character counts).
+### How the buttons work:
+* **Fade In / Fade Out:** The time the text takes to fully appear at the beginning and fade out at the end. 
+  * *Golden Tip:* Instead of typing milliseconds (e.g., `500`), you can type a decimal value (like `0.8`). This makes the fade last exactly **80% of the line's total time**, no matter its duration!
+* **Alpha / Colour:** If you choose **Alpha**, the text will just fade in transparency. If you choose **Colour (From/To)**, the text will crossfade from one color to another as it appears.
+* **By Letter:** Instead of the whole line fading at once, each letter will fade in one after the other.
+* **Direction:** The order the letters will appear (Left to Right, Right to Left, etc.).
 
 ---
 
 ## 2. Easy Gradient (Multi-Point)
-Generates letter-by-letter gradients with up to 5 key colors and advanced interpolation, or automatically through Styles.
+Paints your subtitle with a horizontal gradient. Works perfectly even if you select multiple lines at the same time.
 
 <div align="center">
   <table>
     <tr>
       <td align="center" width="50%">
-        <strong>Multi-Point Gradient</strong><br>
+        <strong>Manual Gradient</strong><br>
         <img src="ASSETS/gradient_en.png" alt="GUI Gradient">
       </td>
       <td align="center" width="50%">
-        <strong>Gradient: Style Transition</strong><br>
+        <strong>Gradient by Style</strong><br>
         <img src="ASSETS/gradient_sty_en.png" alt="GUI Gradient Styles">
       </td>
     </tr>
   </table>
 </div>
 
-### Parameters:
-* **Interpolate HSL:** Transitions colors through the Hue, Saturation, and Lightness spectrum instead of RGB space, resulting in vibrant colors that don't pass through gray or muddy tones halfway.
-* **Key Colors (1-5):** Defines the stopping points. Enable mid-colors for ultra-complex gradients.
-* **Target Checkboxes:** Selectively apply the gradient only to specific tags (`\c`, `\3c`, or `\4c`).
-* **Styles (A, B, C):** Automatically reads your style table. Choose a linear transition (A -> B) or a 3-point anchored transition (A -> C -> B).
-* **Complete Interpolation:** Mathematically transitions colors, outlines (`\bord`), shadows (`\shad`), and font sizes (`\fs`), generating 3D perspective effects or organic text growth.
+### How the buttons work:
+* **Colors (1 to 5):** Choose the colors that will form the gradient. Enable the extra color checkboxes for complex setups.
+* **Interpolate HSL:** Keep this checked! It makes the color blending look vibrant, preventing grayish or muddy tones in the middle.
+* **Target Checkboxes:** Choose where the color will be applied: Inside the text (`\c`), on the border (`\3c`), or the shadow (`\4c`).
+* **Styles Tab:** Tell the script to create a gradient pulling colors straight from your Aegisub Styles (e.g., "Start with Style A's color and end with Style B's color").
 
 ---
 
 ## 3. Flashes
-Ideal for synchronizing visual impact with the music beat.
+Makes your subtitle blink rapidly in another color. Perfect for visual impacts synced with heavy music beats.
 
 ![GUI Flashes](ASSETS/flashes_en.png)
 
-### Parameters:
-* **Flash Color:** The color the subtitle will assume during the peak (BPM).
-* **Interval (ms):** Defines the time between alternations.
-* **Smooth Transition:** When unchecked, makes hard cuts. When checked, creates a pulsing effect linking the flashes with `\t`.
+### How the buttons work:
+* **Flash Color:** The color the text will turn into when it "blinks".
+* **Interval (ms):** The speed of the blinks. Smaller number = Faster.
+* **Smooth Transition:** If unchecked, it cuts abruptly (strobe style). If checked, the color pulses smoothly.
 
 ---
 
 ## 4. Split Lines
-Splits sentences into individual layers while maintaining strict original layout.
+Cuts an entire sentence and turns each letter or word into a separate line without moving them from their original spot.
 
 ![GUI Split](ASSETS/split_en.png)
 
-### Features:
-* **Modes:** Split by **Character** or by **Word**.
-* **Typographic Preservation:** Extracts and rebuilds global and local tags, including original `\fs` and horizontal anchor points.
-* **Whitespace Filter:** Detects spaces and calculates their metrics (`text_extents`) to maintain proper kerning, but prevents the creation of useless empty lines on the grid.
+### How the buttons work:
+* **Split by Character:** Separates letter by letter.
+* **Split by Word:** Separates cutting at the spaces.
 
 ---
 
 ## 5. Transform (\t)
-Quick creation of temporal transition animations.
+Automatically animates changes in colors, sizes, and transparency over time.
 
 ![GUI Transform](ASSETS/transform_en.png)
 
-### Parameters:
-* **Interval (ms):** Defines Start and End time (the end inherits the line duration by default).
-* **Color & Size Targets:** Allows simultaneous transitioning of `\1c`, `\2c`, `\3c`, `\4c`, font scale (`\fs`), and global opacity (`\alpha`).
+### How the buttons work:
+* **Start and End (ms):** Defines the exact time the animation happens. If you leave the end at zero, it uses the total line duration.
+* **Colors and Size:** Check what you want to change and its final value. (e.g., checking Font `\fs` to `150` makes the text smoothly grow to that size).
 
 ---
 
-## 6. Text & Font FX
-A powerful integrated typographic motion engine. It replaces the old Random Fonts and encompasses 5 lettering manipulation tools with dynamic "clean line" generation.
+## 6. Text & Fonts FX
+A text animation generator focused on typography.
 
 ![GUI TextFX](ASSETS/textfx_en.png)
 
 ### Available Effects:
-* **Random Fonts:** Randomly selects fonts from a predefined list. **Normalization Included:** Uses an invisible "X-Height" dictionary to correct font bounding boxes (e.g., *Lucida Console* gets a different scale so it doesn't "shrink" next to *Roboto*).
-* **Typewriter:** Reveals letters in sequence based on `ms/char`. 
-* **Unscramble:** Decryption (Hacking) effect. Before revealing the actual letter, it displays random symbols for 120ms.
-* **Chaos Symbols:** Text suffers continuous corruption over time (30% chance to turn into a corrupted character on each sliced frame).
-* **Invert Letters:** Replaces letters with their mirrored equivalents using Unicode code points. If **Horizontal (X)** or **Both (X+Y)** directions are chosen, the entire string is reordered backward (True Mirror).
-
-### The "Dynamic Jump" Magic (Center)
-By enabling **Dynamic Jump** in Typewriter or Unscramble, syllables that haven't been revealed yet are physically *deleted* from the line instead of just being hidden with alpha. If your line has central alignment (`\an5`, `\an8`, etc.), the entire sentence recalculates and "jumps" to the center with every new letter printed on the screen!
+* **Random Fonts:** Rolls random fonts. The script automatically adjusts their size so a naturally small font doesn't look "squeezed" next to a big one.
+* **Typewriter:** Makes the text type out on the screen.
+* **Unscramble (Hacking):** Shows rolling random symbols before revealing the true letter.
+* **Chaos:** The text randomly "corrupts" itself with bizarre symbols throughout the line duration.
+* **Invert:** Mirrors the text backwards.
+* **Dynamic Jump (Center):** Makes the text constantly re-center itself on the screen with every new letter typed, without pushing the rest of the sentence.
 
 ---
 
-## 7. YtktFade
-Compression optimizer for YouTube.
-
-![GUI Ytkt](ASSETS/ytkt_en.png)
-
-### Parameters:
-* **Constant Alpha:** Injects alphas that force web renderers (VP9/AV1) to maintain the karaoke's outline quality.
-* **Enable \2c:** Applies secondary fill colors.
-
----
-
-## 8. Fix Lines
-Position standardization via relative mathematical calculations.
+## 7. Fix Lines
+Fixes the positioning of your subtitle, converting it to absolute screen coordinates using `\pos`.
 
 ![GUI FixLines](ASSETS/fix_en.png)
 
-### Features:
-* **Force Alignment (\an5):** Overrides previous alignments and centers the anchor point.
-* **Delta Calculation:** Captures the actual video resolution (`PlayRes`) and positions subtitles in exact proportion. Perfect for migrating `1080p` `.ass` files to Shorts/TikTok (`1080x1920`) projects without breaking the layout.
+### How the buttons work:
+* **Force Top/Mid/Bottom:** Ignores where the text was and forces it exactly to the mathematical center of the screen (Top, Center, or Bottom).
 
 ---
 
-## 9. Dynamic Glitch (Paid)
-Advanced generator for static and animated chromatic aberration (RGB Split).
+## 8. YtktFade
+A tool made exclusively for uploaders who use "Invisible" karaoke on YouTube.
+
+![GUI Ytkt](ASSETS/ytkt_en.png)
+
+### How the buttons work:
+* **Constant Alpha:** Injects the correct codes so that YouTube's renderer doesn't leave the karaoke's border jagged during compression.
+* **Enable \2c:** Selects the secondary background color for the karaoke.
+
+---
+
+## 9. Number Counter
+Generates animated numbers automatically. Great for loading bars, statistics, or timers on screen.
+
+![GUI Counter](ASSETS/counter_en.png)
+
+### How the buttons work:
+* **Start / End:** Where the number begins and where it stops (e.g., 0 to 100).
+* **Duration (ms):** Time it takes to count. If left at `0`, it counts during the entire line duration.
+* **Pos X / Pos Y:** The exact coordinates on the screen where the counter will appear.
+* **Auto-add \an5:** Perfectly centers the number at the chosen position.
+* **From -> To (Size/Colors):** You can make the number grow (Size `\fs`), change its primary color, border, shadow, or fade in (Alpha) while it counts!
+
+---
+
+## 10. Shake
+Makes the subtitle shake on the screen, simulating a camera shake. The script automatically generates the movements by creating several `\pos` coordinates.
+
+![GUI Shake](ASSETS/shake_en.png)
+
+### How the buttons work:
+* **Offset X and Y (px):** The maximum pixels the text can jump sideways (X) and up/down (Y).
+* **Duration (ms):** The total time the shake will last.
+* **Interval (ms):** The frequency. A low interval (e.g., `40`) makes a fast and violent shake, a high interval makes a slow rocking motion.
+* **Type:** Where the shake happens (e.g., at the "Start" of the line, at the end, etc.).
+* **Orig. Start/End:** Keeps the original line timings without shifting the grid.
+
+---
+
+## 11. Color Tracker
+*(Original base credits: [Zahuczky](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts))*
+
+A continuous "eyedropper". It tracks (follows) the color changes of a single specific pixel on your screen and applies that color to your subtitle.
+
+![GUI Color Tracker](ASSETS/ctrack_en.png)
+
+### How the buttons work:
+* **Position X and Y:** The exact point on the screen the script will watch.
+* **Apply to:** Choose which part of your text will receive this tracked color from the video:
+  * `\c (Fill)`: The inside of the text.
+  * `\2c`: The secondary (karaoke) color.
+  * `\3c (Border)`: The border.
+  * `\4c (Shadow)`: The shadow.
+
+---
+
+## 12. Dynamic Glitch (Paid)
+Creates the famous "Digital Failure" or Chromatic Aberration effect. It duplicates the text borders in different colors and makes them split and shake.
 
 ![GUI Glitch](ASSETS/glitch_en.png)
 
-### Technical Differentials:
-* **Typographic Flicker:** Enable "Bold" or "Italic" and the engine flips a coin (50% chance) on every frame generated per layer: the glitch will flicker with font weight breaks during the distortion, creating an extremely aggressive look.
-* **Chaos Mode (Random Pos):** Detaches the core anchor (`\c1`). While the edges shake on the X-axis, the core vibrates in random directions on the Y-axis.
-* **Execution Types:** Choose to slice the whole text ("Always") or generate corruption only at the **Start** or **End** of the line, optimizing the rest of the time with Culling.
-* **Karaoke Integration:** Generate glitches syllable by syllable (synced with native `\k` or ReverseK). 
-* **Center Karaoke:** Uses the same "Dynamic Jump" engineering from *Text FX* to force text centering while words appear in the glitch!
+### How the buttons work:
+* **Offset X and Y (px):** The maximum distance the fake colors will separate from the original text (sideways or up/down).
+* **Duration (ms):** The time the effect will last on screen.
+* **Variation \fs:** Makes the text size randomly "jump" (grow and shrink) during the glitch.
+* **Type:** Choose if the glitch happens at the **Start** of the line, at the **End**, or **Always** (the entire time).
+* **Effect Checkboxes (Bold, Italic, Vary Fonts, Symbols):** Makes the text flicker by changing fonts or turning into random symbols (`@#$`) to look like a truly corrupted video file.
+* **Auto Colors (Style):** Pulls the colors straight from your Aegisub Style. If unchecked, you can manually choose the color that will flash on the **Left**, **Right**, and **Center** of the text, along with their transparency (`Alpha`).
+* **Center Karaoke:** If your glitch is happening syllable by syllable using the `\k` tag, this option ensures the word jumps to the center of the screen.
 
 ---
 
-## 10. Rainbow Wave (Paid)
-Creates radial chromatic pulses sweeping through the text without stacking overlapping layers in Aegisub.
+## 13. Rainbow Wave (Paid)
+Makes a wave of color sweep smoothly across your text, gliding across letters like water, without creating thousands of heavy overlapping layers in Aegisub.
 
 ![GUI Rainbow](ASSETS/rainbow_en.png)
 
-### Parameters:
-* **Use Style Color:** Instead of fixed RGB colors, you can select a secondary style. The engine will use the math of a **Sine Wave (`math.sin`)** to generate a soft "pulse" (perfect fade-in and fade-out), seamlessly replacing the current color with the style color.
-* **Shielded Step Logic:** Operates with a rigid lower limit of `40ms`, preventing the creation of millisecond sandwiches that would choke renderers.
-* **End-to-End Culling:** Calculates exactly where the wave finishes on the final letter and compresses all remaining seconds of the original subtitle into a single static line.
+### How the buttons work:
+* **Direction:** Where the wave travels (Left to Right, etc.).
+* **Slice Step (ms):** The cut precision. We recommend leaving it at `40` for an extremely smooth movement that won't lag your PC.
+* **Wave Width (ms):** The "size" of the wave. Larger values make the color take longer to cross the word.
+* **Speed (ms/char):** The time the wave takes to jump from one letter to the next.
+* **Apply over gradient (Preserve):** Check this if your text already has an original gradient and you don't want the wave to destroy it as it passes.
+* **Use Style Color:** Instead of a standard colorful rainbow, the wave will use a color from your style (like the primary or secondary), acting as a "glow" that sweeps through the text.
 
 ---
 
-## 11. Reverse Karaoke (Paid)
-Inverts standard karaoke logic: the entire line is already sung on screen and *disappears* as the `\k` times hit.
+## 14. KaraFX (Karaoke & ReverseK) [Paid]
+Automates advanced effects for those who sync syllables using the `\k` tag. Replaces old karaoke plugins that used to break text layouts.
 
-### Technical Differential:
-Processed without the unstable use of cross-alpha `\t` tags. It scans the syllables and applies binary visibility states `\alpha&H00&` (current/future) and `\alpha&HFF&` (past), ensuring zero flicker bugs while preserving font size (`\fs`) and global positioning tags from the base line.
+![GUI KaraFX](ASSETS/karafx_en.png)
+
+### How the buttons work:
+* **1. Color Fade:** Makes the syllable change color *smoothly* when sung (unlike the hard, dry switch of normal karaoke). You set the Spawn Color and the time.
+* **2. Movement (Move):** Makes the syllable give a little "jump" in the chosen direction (Down, Up, Left, Right) and the configured Distance in pixels as soon as it's sung.
+* **Preserve Gradient:** Ensures the above effects don't destroy your text's original gradient.
+* **"ReverseK" Button (Reverse Karaoke):** Ignores the effects above and does the exact opposite of traditional karaoke: the entire text starts on screen and **vanishes** (dims) syllable by syllable in the exact rhythm of the `\k`.
 
 ---
 
-## 12. Curves (Paid) - BETA
-Replaces Aegisub's rigid `\move` tag with motion interpolation via Easing.
+## 15. Curves [Paid] - BETA
+Brings the professional smooth movement of software like Premiere and After Effects straight into Aegisub's `\move` tag.
 
 <div align="center">
   <table>
     <tr>
       <td align="center" width="50%">
-        <strong>Basic Mode (Quad/Cubic)</strong><br>
+        <strong>Basic Mode</strong><br>
         <img src="ASSETS/curves_en.png" alt="GUI Curves">
       </td>
       <td align="center" width="50%">
-        <strong>Advanced Bézier Mode</strong><br>
+        <strong>Advanced Mode (Bézier)</strong><br>
         <img src="ASSETS/curves_adv_en.png" alt="GUI Curves Advanced">
       </td>
     </tr>
   </table>
 </div>
 
-### Easing Parameters:
-* **Use Cubic:** Quick checkbox to switch acceleration between Quadratic (`t * t`) and Cubic (`t ^ 3`) calculation, delivering a much stronger start-up burst.
-* **Standard CSS Modes:** The advanced panel includes industry presets like *Expo In*, *Expo Out*, *Back In-Out*, and *Back Out* (Perfect elastic motion).
-* **Bézier Vector Analysis:** Edit `x1, y1` and `x2, y2` coordinates identically to After Effects interpolation tools.
-* **Sub-Effects Preservation:** Slicing into dozens of pieces would break a fade-in. The Curves native engine converts all your global durations and throws them into localized negative times `\t(-offset, ...)` to keep color transitions and blurs completely untouched during the curve's flight!
-
----
+### How the buttons work:
+* **Presets (In, Out, In-Out):** Ready-to-use accelerations. (Starts slow and ends fast, elastic bounce, etc.).
+* **Advanced Mode (Bézier):** Allows you to paste the exact mathematical values (x1, y1, x2, y2) you use in your video editor so the text follows the exact same curve and speed as your camera.
 
 <br />
 
@@ -425,6 +281,292 @@ Replaces Aegisub's rigid `\move` tag with motion interpolation via Easing.
 
 <div align="center">
   <p>Developed by <strong><a href="https://x.com/otenshy">Tensho</a></strong>. MIT License.</p>
-</div
+</div>
+
+<h1 id="-português"></h1>
+<div align="left">
+  <a href="#-english">
+    <img src="https://img.shields.io/badge/Lang-English-blue?style=for-the-badge&logo=united-kingdom" alt="English">
+  </a>
+</div>
+
+# Documentação Oficial: TenshoScripts v2.0.0
+
+Bem-vindo ao manual de uso do **TenshoScripts**. Este pacote foi criado para facilitar a sua vida na hora de animar legendas. Nosso foco principal é agilizar e profissionalizar o workflow de legendas voltadas exclusivamente para o **YouTube**. O nosso script garante que as suas legendas nunca quebrem ou saiam do lugar enquanto você aplica efeitos complexos.
+
+---
+
+## 📑 Índice de Ferramentas
+
+**⚙️ Configurações**
+* [0. Configurações Globais](#0-configurações-globais)
+
+**🟢 Ferramentas Gratuitas (Free)**
+* [1. Fadeworks Adaptado](#1-fadeworks-adaptado)
+* [2. Gradiente Fácil](#2-gradiente-fácil-multi-ponto)
+* [3. Piscadas (Flashes)](#3-piscadas-flashes)
+* [4. Dividir Linhas](#4-dividir-linhas)
+* [5. Transformar (\t)](#5-transformar-t)
+* [6. Texto & Fontes FX](#6-texto--fontes-fx)
+* [7. Fixar Linhas](#7-fixar-linhas)
+* [8. YtktFade](#8-ytktfade)
+* [9. Contador](#9-contador-numérico)
+* [10. Shake (Tremor)](#10-shake-tremor)
+* [11. Color Tracker](#11-color-tracker)
+
+**💎 TenshoScripts + (Exclusive)**
+* [12. Glitch Dinâmico](#12-glitch-dinâmico-pago)
+* [13. Onda Arco-Íris](#13-onda-arco-íris-pago)
+* [14. KaraFX (Karaoke & KReverso)](#14-karafx-karaoke--kreverso-pago)
+* [15. Curvas [BETA]](#15-curvas-pago---beta)
+
+---
+
+## 0. Configurações Globais
+Onde você personaliza como o script se comporta no seu Aegisub.
+
+![GUI Config](ASSETS/config_pt.png)
+
+### Como funcionam as opções:
+* **Idioma / Language:** Troca o idioma de todos os botões e avisos (Português ou Inglês).
+* **Modo Transparência (Alpha):** Como você prefere digitar a transparência nas caixas de texto das ferramentas. Pode ser em código hexadecimal do Aegisub (ex: `&HFF&`) ou uma simples porcentagem de `0 a 100%`.
+* **Buscar atualizações automaticamente:** Se marcado, o script olha na internet toda vez que você o abre para ver se tem funções novas e já baixa sozinho.
+
+---
+
+## 1. Fadeworks Adaptado
+O Fadeworks serve para fazer o texto aparecer e sumir suavemente (Fade In / Fade Out).
+
+![GUI Fadeworks](ASSETS/fadeworks_pt.png)
+
+### Como funcionam os botões:
+* **Fade In / Fade Out:** O tempo que o texto vai demorar para aparecer no começo e sumir no final.
+  * *Dica de Ouro:* Em vez de digitar milissegundos (ex: `500`), você pode digitar um valor decimal (como `0.8`). Isso fará o fade durar exatamente **80% do tempo total da linha**, não importa o tamanho dela!
+* **Alpha / Colour:** Se escolher **Alpha**, o texto só fica transparente. Se escolher **Cor (From/To)**, o texto vai mudar de uma cor para outra enquanto aparece.
+* **By Letter (Por Letra):** Em vez da linha inteira aparecer de uma vez, cada letra vai aparecendo uma após a outra.
+* **Direção:** A ordem em que as letras aparecem (Esquerda para Direita, Direita para Esquerda, etc.).
+
+---
+
+## 2. Gradiente Fácil (Multi-Ponto)
+Pinta a sua legenda com um degradê (várias cores se misturando na horizontal). Funciona perfeitamente mesmo selecionando várias linhas ao mesmo tempo.
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="50%">
+        <strong>Gradiente Manual</strong><br>
+        <img src="ASSETS/gradient_pt.png" alt="GUI Gradient">
+      </td>
+      <td align="center" width="50%">
+        <strong>Gradiente por Estilo</strong><br>
+        <img src="ASSETS/gradient_sty_pt.png" alt="GUI Gradient Styles">
+      </td>
+    </tr>
+  </table>
+</div>
+
+### Como funcionam os botões:
+* **Cores (1 a 5):** Escolha as cores que formarão o degradê.
+* **Interpolar HSL:** Deixe marcado! Faz a mistura das cores ficar viva, sem criar manchas cinzas ou marrons no meio.
+* **Aplicar em (Target):** Define se a cor vai pintar o interior do texto (`\c`), a borda (`\3c`) ou a sombra (`\4c`).
+* **Aba de Estilos:** Permite criar o degradê puxando as cores prontas dos seus Estilos do Aegisub.
+
+---
+
+## 3. Piscadas (Flashes)
+Faz a sua legenda piscar rapidamente em outra cor. Perfeito para dar impacto nas batidas fortes da música.
+
+![GUI Flashes](ASSETS/flashes_pt.png)
+
+### Como funcionam os botões:
+* **Cor do Flash:** A cor que o texto vai ficar quando "piscar".
+* **Intervalo (ms):** A velocidade das piscadas. Menor = Mais rápido.
+* **Suavizar Transição:** Se desmarcado, pisca de forma seca. Se marcado, a cor pulsa suavemente de uma para outra.
+
+---
+
+## 4. Dividir Linhas
+Corta uma frase inteira e transforma cada letra ou palavra em uma linha separada no Aegisub, sem tirar elas do lugar original. 
+
+![GUI Split](ASSETS/split_pt.png)
+
+### Como funcionam os botões:
+* **Dividir por Caractere:** Separa letra por letra.
+* **Dividir por Palavra:** Separa cortando nos espaços.
+
+---
+
+## 5. Transformar (\t)
+Anima a mudança de cores, tamanhos e transparência de um ponto ao outro de forma automática.
+
+![GUI Transform](ASSETS/transform_pt.png)
+
+### Como funcionam os botões:
+* **Início e Fim (ms):** O tempo exato em que a animação acontece. Se deixar o fim zerado, ele dura a linha toda.
+* **Cores e Tamanho:** Marque o que você quer mudar e o valor final. (Ex: Marcar Fonte `\fs` para `150` fará o texto crescer até esse tamanho).
+
+---
+
+## 6. Texto & Fontes FX
+Um gerador de animações de texto focadas em tipografia.
+
+![GUI TextFX](ASSETS/textfx_pt.png)
+
+### Efeitos Disponíveis:
+* **Variar Fontes:** Sorteia fontes aleatórias ajustando automaticamente o tamanho de cada uma para nenhuma ficar "espremida".
+* **Typewriter (Máquina de Escrever):** O texto é digitado na tela.
+* **Embaralhar (Hacking):** Mostra símbolos aleatórios rolando antes de revelar a letra verdadeira.
+* **Caos:** Símbolos corrompidos aparecem e somem sozinhos.
+* **Inverter:** Espelha a frase de trás pra frente.
+* **Pulo Dinâmico (Centralizar):** Faz o texto sempre se reajustar pro meio da tela a cada letra digitada, sem empurrar o resto da frase.
+
+---
+
+## 7. Fixar Linhas
+Arruma o posicionamento da sua legenda, convertendo ela para as coordenadas absolutas da tela usando `\pos`.
+
+![GUI FixLines](ASSETS/fix_pt.png)
+
+### Como funcionam os botões:
+* **Forçar Topo/Meio/Baixo:** Ignora onde o texto estava e joga ele exatamente no centro matemático superior, central ou inferior do vídeo.
+
+---
+
+## 8. YtktFade
+Ferramenta para quem faz karaokê "invisível" focado pro YouTube.
+
+![GUI Ytkt](ASSETS/ytkt_pt.png)
+
+### Como funcionam os botões:
+* **Alpha Constante:** Injeta códigos para o YouTube não destruir a qualidade da borda do karaokê na compressão.
+* **Ativar \2c:** Escolhe a cor de fundo secundária do karaokê.
+
+---
+
+## 9. Contador Numérico
+Gera números animados sozinhos. Ótimo para barras de progresso, carregamentos ou estatísticas na tela.
+
+![GUI Counter](ASSETS/counter_pt.png)
+
+### Como funcionam os botões:
+* **Início / Fim:** De qual número ele começa e em qual termina (Ex: 0 a 100).
+* **Duração (ms):** Tempo que ele leva para contar. Se deixar `0`, ele conta durante todo o tempo da linha.
+* **Pos X / Pos Y:** As coordenadas exatas na tela onde o contador vai aparecer.
+* **Adicionar \an5:** Centraliza perfeitamente o número na posição escolhida.
+* **De -> Para (Tamanho/Cores):** Você pode fazer o número crescer (Tamanho `\fs`), mudar de cor principal, borda, sombra ou ir aparecendo (Alpha) enquanto conta!
+
+---
+
+## 10. Shake (Tremor)
+Faz a legenda tremer na tela, simulando o balanço de uma câmera. O script gera os movimentos automaticamente criando vários `\pos`.
+
+![GUI Shake](ASSETS/shake_pt.png)
+
+### Como funcionam os botões:
+* **Offset X e Y (px):** O limite de pixels que o texto pode pular para os lados (X) e para cima/baixo (Y).
+* **Duração (ms):** O tempo total que o tremor vai durar.
+* **Intervalo (ms):** A frequência. Um intervalo baixo (ex: `40`) faz um tremor rápido e violento, um intervalo alto faz um balanço lento.
+* **Tipo:** Onde o tremor acontece (ex: no "Start" da linha, no fim, etc.).
+* **Início/Fim originais:** Mantém as temporizações da linha sem alterar a grade.
+
+---
+
+## 11. Color Tracker
+*(Créditos da base original: [Zahuczky](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts))*
+
+Um "conta-gotas" contínuo. Ele fica rastreando (seguindo) as mudanças de cor de um único pixel da tela e aplica essa cor na sua legenda.
+
+![GUI Color Tracker](ASSETS/ctrack_pt.png)
+
+### Como funcionam os botões:
+* **Posição X e Y:** O ponto exato da tela que o script vai vigiar.
+* **Aplicar em:** Escolha que parte do seu texto vai receber essa cor copiada do vídeo:
+  * `\c (Fill)`: O interior do texto.
+  * `\2c`: A cor secundária (karaokê).
+  * `\3c (Border)`: A borda.
+  * `\4c (Shadow)`: A sombra.
+
+---
+
+## 12. Glitch Dinâmico (Pago)
+Cria o famoso efeito de "Falha Digital" ou Aberração Cromática. Ele duplica as bordas do texto em cores diferentes e faz elas se separarem e tremerem.
+
+![GUI Glitch](ASSETS/glitch_pt.png)
+
+### Como funcionam os botões:
+* **Desvio X e Y (px):** A distância máxima que as cores falsas vão se separar do texto original (para os lados ou para cima/baixo).
+* **Duração (ms):** O tempo que o efeito vai durar na tela.
+* **Variação \fs:** Faz o tamanho do texto "pular" (aumentar e diminuir) aleatoriamente durante o glitch.
+* **Tipo:** Escolha se o glitch acontece no **Começo** da linha, no **Fim**, ou **Sempre** (o tempo todo).
+* **Caixinhas de Efeito (Negrito, Itálico, Variar Fontes, Símbolos):** Fazem o texto piscar trocando de fonte ou virando símbolos aleatórios (`@#$`) para parecer que o arquivo de vídeo corrompeu de verdade.
+* **Cores Automáticas (Estilo):** Puxa as cores direto do seu Estilo do Aegisub. Se desmarcar, você pode escolher manualmente a cor que vai piscar na **Esquerda**, **Direita** e no **Centro** do texto, junto com a transparência (`Alpha`) de cada uma.
+* **Centralizar Karaoke:** Se o seu glitch estiver acontecendo sílaba por sílaba com a tag `\k`, essa opção garante que a palavra pule para o centro da tela.
+
+---
+
+## 13. Onda Arco-Íris (Pago)
+Faz uma onda de cor varrer o seu texto fluidamente, deslizando pelas letras como água, sem criar milhares de camadas pesadas no seu Aegisub.
+
+![GUI Rainbow](ASSETS/rainbow_pt.png)
+
+### Como funcionam os botões:
+* **Direção:** Para onde a onda vai (Esquerda para Direita, etc.).
+* **Fatiamento (ms):** A precisão do corte. Recomendamos deixar em `40` para um movimento extremamente macio que não trava o seu PC.
+* **Largura da Onda (ms):** O "tamanho" da onda. Valores maiores fazem a cor demorar mais para atravessar a palavra.
+* **Velocidade (ms/char):** O tempo que a onda leva para pular de uma letra para a próxima.
+* **Aplicar sobre gradiente:** Marque isso se o seu texto já tiver um degradê original e você não quiser que a onda destrua ele ao passar.
+* **Usar Cor do Estilo:** Em vez de um arco-íris colorido padrão, a onda usará uma cor do seu estilo (como a primária ou secundária), servindo como um "brilho" que atravessa o texto.
+
+---
+
+## 14. KaraFX (Karaoke & KReverso) [Pago]
+Automatiza efeitos avançados para quem sincroniza sílabas usando a tag `\k`. Substitui plugins velhos de karaokê que quebravam o layout do texto.
+
+![GUI KaraFX](ASSETS/karafx_pt.png)
+
+### Como funcionam os botões:
+* **1. Fade de Cor:** Faz a sílaba mudar de cor *suavemente* quando for cantada (diferente da troca dura e seca do karaokê normal). Você define a Cor do Surgimento e o tempo.
+* **2. Movimento (Move):** Faz a sílaba dar um "pulinho" na direção escolhida (Baixo, Cima, Esquerda, Direita) e na Distância configurada em pixels assim que for cantada.
+* **Preservar Gradiente:** Garante que os efeitos acima não destruam o degradê original do seu texto.
+* **Botão "KReverso" (Karaokê Reverso):** Ignora os efeitos acima e faz o oposto do karaokê tradicional: o texto inteiro começa na tela e vai **apagando** (sumindo) sílaba por sílaba no exato ritmo do `\k`.
+
+---
+
+## 15. Curvas [Pago] - BETA
+Traz a movimentação suave profissional de programas como Premiere e After Effects direto para a tag `\move` do Aegisub.
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="50%">
+        <strong>Modo Básico</strong><br>
+        <img src="ASSETS/curves_pt.png" alt="GUI Curves">
+      </td>
+      <td align="center" width="50%">
+        <strong>Modo Avançado (Bézier)</strong><br>
+        <img src="ASSETS/curves_adv_pt.png" alt="GUI Curves Advanced">
+      </td>
+    </tr>
+  </table>
+</div>
+
+### Como funcionam os botões:
+* **Presets (In, Out, In-Out):** Acelerações prontas. (Começa devagar e termina rápido, dá um tranco elástico, etc).
+* **Modo Avançado (Bézier):** Permite colar os valores matemáticos exatos (x1, y1, x2, y2) que você usa na edição do seu vídeo, pro texto andar e frear na exata mesma velocidade da câmera.
 
 <br />
+
+<div align="center">
+  <a href="https://ko-fi.com/s/5a3d4b8736">
+    <img src="https://img.shields.io/badge/Desbloquear_TenshoScripts_+-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" width="750">
+  </a>
+</div>
+
+<br />
+<hr />
+<br />
+
+<div align="center">
+  <p>Desenvolvido por <strong><a href="https://x.com/otenshy">Tensho</a></strong>. MIT License.</p>
+</div>
