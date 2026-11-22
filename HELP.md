@@ -3,7 +3,7 @@
     <img src="https://img.shields.io/badge/Lang-Português-green?style=for-the-badge&logo=brazil" alt="Português">
   </a>
   
-# Official Documentation: TenshoScripts v2.1.1
+# Official Documentation: TenshoScripts v2.1.0
 
 Welcome to the **TenshoScripts** manual. This toolkit was created to make your life easier when animating subtitles. Our main focus is to streamline and professionalize the subtitle workflow specifically for **YouTube**. Our engine ensures that your subtitles never break or get displaced while applying complex effects.
 
@@ -360,7 +360,7 @@ Translates the selected lines with Gemini, sending the whole lyric together (plu
   </a>
 </div>
 
-# Documentação Oficial: TenshoScripts v2.1.1
+# Documentação Oficial: TenshoScripts v2.1.0
 
 Bem-vindo ao manual de uso do **TenshoScripts**. Este pacote foi criado para facilitar a sua vida na hora de animar legendas. Nosso foco principal é agilizar e profissionalizar o workflow de legendas voltadas exclusivamente para o **YouTube**. O nosso script garante que as suas legendas nunca quebrem ou saiam do lugar enquanto você aplica efeitos complexos.
 
