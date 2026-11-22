@@ -3,7 +3,7 @@
 script_name = "-TenshoScripts (Free)"
 script_description = "A suite of automation tools for subtitles."
 script_author = "Tenshy (@otenshy)"
-script_version = "2.1.0"
+script_version = "2.1.1"
 script_free = true
 script_namespace = "tenshy.TenshoScripts" 
 script_language = "en"
@@ -54,6 +54,24 @@ function tensho_hidden_run(cmd)
     return false
 end
 
+-- Alguns comandos (ex.: wmic) gravam UTF-16 quando a saída vai para arquivo: converte para UTF-8,
+-- senão o texto vem cheio de bytes nulos (que cortam o ID da máquina e os comandos montados com ele)
+local function ts_from_utf16(r)
+    if r:sub(1, 2) == "\255\254" then
+        r = r:sub(3)
+    elseif not (#r >= 2 and r:byte(2) == 0) then
+        return r
+    end
+    local out = {}
+    for i = 1, #r - 1, 2 do
+        local c = r:byte(i) + r:byte(i + 1) * 256
+        if c < 0x80 then out[#out + 1] = string.char(c)
+        elseif c < 0x800 then out[#out + 1] = string.char(0xC0 + math.floor(c / 64), 0x80 + c % 64)
+        else out[#out + 1] = string.char(0xE0 + math.floor(c / 4096), 0x80 + math.floor(c / 64) % 64, 0x80 + c % 64) end
+    end
+    return table.concat(out)
+end
+
 -- Roda um comando sem janela e devolve o que ele escreveu na saída padrão
 function tensho_hidden_read(cmd)
     if ts_hidden_ready then
@@ -66,13 +84,13 @@ function tensho_hidden_read(cmd)
             local r = f:read("*a") or ""
             f:close()
             os.remove(out)
-            return r
+            return ts_from_utf16(r)
         end
     end
     local h = io.popen(cmd)
     local r = h and h:read("*a") or ""
     if h then h:close() end
-    return r
+    return ts_from_utf16(r)
 end
 
 re = nil

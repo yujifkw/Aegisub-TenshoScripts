@@ -3,7 +3,7 @@
     <img src="https://img.shields.io/badge/Lang-Português-green?style=for-the-badge&logo=brazil" alt="Português">
   </a>
   
-# Official Documentation: TenshoScripts v2.1.0
+# Official Documentation: TenshoScripts v2.1.1
 
 Welcome to the **TenshoScripts** manual. This toolkit was created to make your life easier when animating subtitles. Our main focus is to streamline and professionalize the subtitle workflow specifically for **YouTube**. Our engine ensures that your subtitles never break or get displaced while applying complex effects.
 
@@ -297,6 +297,7 @@ Automates advanced effects for those who sync syllables using the `\k` tag. Repl
 * **3. Continuous Motion:** Each syllable keeps floating the whole time it stays on screen, independently of the others (a gentle bobbing, as in the "ambiente" reference). **Period (ms)** is the time of one full back-and-forth, **Amplitude X / Y (px)** is how far it sways (`0` disables that axis), and **Slice Step (ms)** is how often the position updates (lower = smoother, but more lines). **Choppy (random jumps)** replaces the smooth sway with jumps to a random position (within the amplitudes) that hold until the next step, like the reference GIF; use a Slice Step of 100-200 ms. **Min. jump (px)** forces each jump to be at least that far from the previous position, so YouTube does not drop jumps that are too small to notice (it cannot exceed what the amplitudes allow; `0` disables it). When this option is on, options 1 and 2 are ignored and the line's `\fad` is preserved. Period starts as the selected line's duration.
 * **Duration (ms):** Time of the fade/entry animation. It opens with the **duration of the selected line**; type `0` to use each syllable's own `\k` time instead.
 * **Preserve Gradient:** Ensures the above effects don't destroy your text's original gradient.
+* **Lines per syllable:** each created line lasts only the time of its syllable (the animation cannot go past it), so only one or two lines are active at once and the file stays light. Example `{\k50}A {\k20}b{\k10}c` in ReverseK: line 1 (500 ms) fades `A` with `bc` visible; line 2 (200 ms) has `A` hidden and fades `b`; line 3 (100 ms) has `A b` hidden and fades `c`. Continuous Motion (option 3) still uses long lines, because each syllable keeps moving.
 * **"ReverseK" Button (Reverse Karaoke):** Ignores the effects above and does the exact opposite of traditional karaoke: the entire text starts on screen and **vanishes** (dims) syllable by syllable in the exact rhythm of the `\k`.
 
 ---
@@ -359,7 +360,7 @@ Translates the selected lines with Gemini, sending the whole lyric together (plu
   </a>
 </div>
 
-# Documentação Oficial: TenshoScripts v2.1.0
+# Documentação Oficial: TenshoScripts v2.1.1
 
 Bem-vindo ao manual de uso do **TenshoScripts**. Este pacote foi criado para facilitar a sua vida na hora de animar legendas. Nosso foco principal é agilizar e profissionalizar o workflow de legendas voltadas exclusivamente para o **YouTube**. O nosso script garante que as suas legendas nunca quebrem ou saiam do lugar enquanto você aplica efeitos complexos.
 
@@ -651,6 +652,7 @@ Automatiza efeitos avançados para quem sincroniza sílabas usando a tag `\k`. S
 * **2. Movimento (Move):** Faz a sílaba dar um "pulinho" na direção escolhida (Baixo, Cima, Esquerda, Direita) e na Distância configurada em pixels assim que for cantada.
 * **3. Movimento Contínuo:** Cada sílaba fica flutuando o tempo todo em que está na tela, independente das outras (um balanço suave, como na referência do "ambiente"). **Período (ms)** é o tempo de uma ida e volta completa, **Amplitude X / Y (px)** é o quanto ela balança (`0` desliga aquele eixo) e **Fatiamento (ms)** é de quanto em quanto tempo a posição atualiza (menor = mais macio, porém mais linhas). **Travado (saltos aleatórios)** troca o balanço suave por saltos para uma posição aleatória (dentro das amplitudes) que fica parada até o próximo passo, como no GIF de referência; use Fatiamento de 100-200 ms. **Salto mínimo (px)** obriga cada salto a ficar pelo menos essa distância da posição anterior, para o YouTube não descartar saltos pequenos demais (não passa do que as amplitudes permitem; `0` desliga). Com esta opção ligada, as opções 1 e 2 são ignoradas e o `\fad` da linha é preservado. O Período começa com a duração da linha selecionada.
 * **Duração (ms):** Tempo da animação de fade/entrada. Abre com a **duração da linha selecionada**; digite `0` para usar o tempo do `\k` de cada sílaba.
+* **Linhas por sílaba:** cada linha criada dura só o tempo da sílaba (a animação não passa disso), então só uma ou duas linhas ficam ativas ao mesmo tempo e o arquivo fica leve. Exemplo `{\k50}A {\k20}b{\k10}c` no ReverseK: a linha 1 (500 ms) apaga o `A` com `bc` visíveis; a linha 2 (200 ms) tem `A` oculto e apaga o `b`; a linha 3 (100 ms) tem `A b` ocultos e apaga o `c`. O Movimento Contínuo (opção 3) continua com linhas longas, porque cada sílaba segue se mexendo.
 * **Preservar Gradiente:** Garante que os efeitos acima não destruam o degradê original do seu texto.
 * **Botão "KReverso" (Karaokê Reverso):** Ignora os efeitos acima e faz o oposto do karaokê tradicional: o texto inteiro começa na tela e vai **apagando** (sumindo) sílaba por sílaba no exato ritmo do `\k`.
 
