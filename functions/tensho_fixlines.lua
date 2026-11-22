@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.1
 -- Autor: Tenshy
 -- Descrição: Utilitário para correção e limpeza automática de erros comuns em linhas de legendas (como quebras de linha incorretas, espaços duplos e pontuação duplicada).
 
@@ -7,7 +7,7 @@ function tensho_fixlines_gui(subs, sel, ADD, ADP, ak)
         for i = 1, #subs do
             if subs[i].class == "info" then
                 if subs[i].key == "PlayResX" then resx = tonumber(subs[i].value) end
-                if subs[i].key == "PlayResY" then ry = tonumber(subs[i].value) end
+                if subs[i].key == "PlayResY" then resy = tonumber(subs[i].value) end
             end
         end
     end
@@ -37,10 +37,11 @@ function tensho_fixlines_gui(subs, sel, ADD, ADP, ak)
         {class="label", x=0, y=6, width=1, label="" }
     }
 
-    local btn_f, res_f = ADD(fix_gui, {T("btn_pos"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_pos"), cancel=T("btn_cancel")})
+    if tensho_add_hints then tensho_add_hints(fix_gui, "fx") end
+    local btn_f, res_f = ADD(fix_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn_f == T("btn_back") then return "BACK" end
-    if btn_f == T("btn_help") then abrir_help(); return tensho_fixlines_gui(subs, sel, ADD, ADP, ak) end
-    if btn_f ~= T("btn_pos") then return sel end
+    if btn_f == T("btn_help") then abrir_help("fix"); return tensho_fixlines_gui(subs, sel, ADD, ADP, ak) end
+    if btn_f ~= T("btn_apply") then return sel end
 
     local dx = res_f.target_x - ref_x
     local dy = res_f.target_y - ref_y

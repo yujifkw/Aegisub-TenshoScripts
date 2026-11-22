@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.1
 -- Autor: Tenshy
 -- Descrição: Cria transformações complexas (\t) automatizadas de posição, escala, rotação e cor sem que você precise digitar os códigos manualmente.
 
@@ -63,9 +63,10 @@ function tensho_transform_gui(subs, sel, ADD, ADP, ak)
         end
     end
 
+    if tensho_add_hints then tensho_add_hints(trans_gui, "tr") end
     local btn, res_t = ADD(trans_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_transform_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("transform"); return tensho_transform_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
 
     if res_t.rem_transform then transform_last_res = res_t; transform_remembered = true end

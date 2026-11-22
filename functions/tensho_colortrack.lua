@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.1.1
 -- Autor: Tenshy & Zahuczky
 -- Descrição: Auxilia no rastreamento e gerenciamento de paletas de cores e mapeamento visual de legendas dentro do ambiente de trabalho.
 
@@ -25,7 +25,9 @@ function tensho_colortrack_gui(subs, sel, ADD, ADP, ak)
         {class="checkbox", name="c3", label=T("trk_c3"), value=false, x=1, y=6},
         {class="checkbox", name="c4", label=T("trk_c4"), value=false, x=2, y=6},
 
-        {x=0,y=7,width=6,class="label",label=""}
+        {class="checkbox", name="smooth", label=T("trk_smooth"), value=true, x=0, y=7, width=4},
+
+        {x=0,y=8,width=6,class="label",label=""}
     }
     
     if track_remembered and track_last_res and track_last_res.rem_trk then 
@@ -34,9 +36,10 @@ function tensho_colortrack_gui(subs, sel, ADD, ADP, ak)
         end
     end
 
+    if tensho_add_hints then tensho_add_hints(track_gui, "trk") end
     local btn, res = ADD(track_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_colortrack_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("colortrack"); return tensho_colortrack_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
     
     if res.rem_trk then track_last_res = res; track_remembered = true end
@@ -84,7 +87,7 @@ function tensho_colortrack_gui(subs, sel, ADD, ADP, ak)
             local filter = 'crop=2:2:' .. pX .. ":" .. pY
             local cmd = string.format('ffmpeg -i "%s" -ss %s -to %s -filter:v "%s" -f rawvideo -pix_fmt rgb24 "%s" -y', video_path, ffmpegStart, ffmpegEnd, filter, pixpath)
             
-            os.execute(cmd)
+            if tensho_hidden_run then tensho_hidden_run(cmd) else os.execute(cmd) end
             
             local pixfile = io.open(pixpath, "rb")
             if not pixfile then
@@ -116,6 +119,12 @@ function tensho_colortrack_gui(subs, sel, ADD, ADP, ak)
         local t_start_time = aegisub.ms_from_frame(startFrame)
         local function makeTransformTimes(i)
             local ft = aegisub.ms_from_frame(startFrame + i) - t_start_time
+            if res.smooth then
+                -- rampa do início do frame anterior até o início deste: a cor chega ao valor certo no frame i
+                -- e fica contínua mesmo se o vídeo final tiver mais fps que o projeto
+                local prev = aegisub.ms_from_frame(startFrame + i - 1) - t_start_time
+                return prev .. "," .. ft .. ","
+            end
             return ft .. "," .. ft .. ","
         end
 

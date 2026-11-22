@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.2
 -- Autor: Tenshy
 -- Descrição: Adiciona efeitos de trepidação, vibração ou tremor de câmera (camera shake) nas coordenadas da legenda para cenas de ação.
 
@@ -31,9 +31,10 @@ function tensho_shake_gui(subs, sel, ADD, ADP, ak)
         end
     end
 
+    if tensho_add_hints then tensho_add_hints(sk_gui, "sk") end
     local btn, res = ADD(sk_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_shake_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("shake"); return tensho_shake_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
 
     if res.rem_sk then shake_last_res = res; shake_remembered = true end
@@ -89,25 +90,11 @@ function tensho_shake_gui(subs, sel, ADD, ADP, ak)
         if mx1 then
             local base_text = line.text
 
-            -- 1. CONVERSÃO INTELIGENTE DO \fad PARA \t
-            local fad_in, fad_out = base_text:match("\\fad%(([%d%.]+),%s*([%d%.]+)%)")
-            if fad_in then
-                fad_in, fad_out = tonumber(fad_in), tonumber(fad_out)
-                base_text = base_text:gsub("\\fad%([^%)]-%)", "")
-                
-                local existing_alpha = base_text:match("\\alpha(&H%x+&)") or "&H00&"
-                
-                local fade_tags = ""
-                if fad_in > 0 then
-                    fade_tags = fade_tags .. string.format("\\alpha&HFF&\\t(0,%d,\\alpha%s)", fad_in, existing_alpha)
-                end
-                if fad_out > 0 then
-                    fade_tags = fade_tags .. string.format("\\t(%d,%d,\\alpha&HFF&)", dur - fad_out, dur)
-                end
-                
-                if base_text:match("^{") then base_text = base_text:gsub("^{", "{" .. fade_tags)
-                else base_text = "{" .. fade_tags .. "}" .. base_text end
-            end
+            -- 1. O \fad vira níveis de \alpha, um por linha gerada (o YouTube não renderiza \t/\fade direito)
+            local fad_in, fad_out = 0, 0
+            if tensho_take_fad then base_text, fad_in, fad_out = tensho_take_fad(base_text) end
+            local fad_info = {fad_in, fad_out, st, et}
+            local fade_style_alpha = tensho_style_alphas and tensho_style_alphas(stylechk(subs, line.style)) or nil
 
             -- 2. LIMPEZA
             local clean_text = base_text:gsub("\\pos%([^%)]-%)", ""):gsub("\\move%([^%)]-%)", "")
@@ -192,9 +179,14 @@ function tensho_shake_gui(subs, sel, ADD, ADP, ak)
                     nl.text = "{" .. tag_to_inject .. "}" .. adjusted_text
                 end
                 
-                subs.insert(idx + offset, nl)
-                table.insert(new_indices, idx + offset)
-                offset = offset + 1
+                local n_ins = 1
+                if tensho_insert_faded then
+                    n_ins = tensho_insert_faded(subs, idx + offset, nl, fad_info, fade_style_alpha)
+                else
+                    subs.insert(idx + offset, nl)
+                end
+                for k = 0, n_ins - 1 do table.insert(new_indices, idx + offset + k) end
+                offset = offset + n_ins
                 
                 t = slice_end
             end

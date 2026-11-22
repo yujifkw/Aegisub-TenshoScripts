@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.1
 -- Autor: Tenshy
 -- Descrição: Aplica efeitos de gradiente de cores personalizadas em textos e sílabas, permitindo transições cromáticas lineares ou dinâmicas no Aegisub.
 
@@ -6,7 +6,7 @@ function tensho_gradient_gui(subs, sel, ADD, ADP, ak)
     --logg("Abrindo GUI de Gradiente (Multi-Ponto, Checkbox Target)...")
     
     if #sel == 0 then
-        aegisub.dialog.display({{class="label", label=T("g_warn")}},{"OK"})
+        aegisub.dialog.display({{class="label", label=T("g_warn")}},{"OK"},{close="OK"})
         return sel
     end
 
@@ -82,9 +82,10 @@ function tensho_gradient_gui(subs, sel, ADD, ADP, ak)
         end
     end
 
+    if tensho_add_hints then tensho_add_hints(gradient_gui, "g") end
     local btn_g, res_g = ADD(gradient_gui, {T("btn_apply"), T("btn_styles"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn_g == T("btn_back") then return "BACK" end
-    if btn_g == T("btn_help") then abrir_help(); return tensho_gradient_gui(subs, sel, ADD, ADP, ak) end
+    if btn_g == T("btn_help") then abrir_help("gradient"); return tensho_gradient_gui(subs, sel, ADD, ADP, ak) end
     if btn_g == T("btn_styles") then return tensho_gradient_styles_gui(subs, sel, ADD, ADP, ak) end
 
     if btn_g == T("btn_apply") then
@@ -212,9 +213,10 @@ function tensho_gradient_styles_gui(subs, sel, ADD, ADP, ak)
         {x=0,y=8,width=3,class="label",label=""}
     }
 
+    if tensho_add_hints then tensho_add_hints(st_gui, "gs") end
     local btn, res = ADD(st_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return tensho_gradient_gui(subs, sel, ADD, ADP, ak) end
-    if btn == T("btn_help") then abrir_help(); return tensho_gradient_styles_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("gradient"); return tensho_gradient_styles_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
 
     local S1 = stylechk(subs, res.s1)

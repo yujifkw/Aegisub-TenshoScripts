@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.1
 -- Autor: Tenshy
 -- Descrição: Divide linhas longas de legenda em partes menores de forma inteligente, mantendo o limite ideal de caracteres por segundo (CPS) e legibilidade.
 
@@ -9,10 +9,11 @@ function tensho_splitlines_gui(subs, sel, ADD, ADP, ak)
         {class="dropdown", name="mode", items={T("sp_char"), T("sp_word")}, value=T("sp_char"), x=1, y=1, width=6},
     }
 
-    local btn, res_s = ADD(split_gui, {T("btn_split"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_split"), cancel=T("btn_cancel")})
+    if tensho_add_hints then tensho_add_hints(split_gui, "sp") end
+    local btn, res_s = ADD(split_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_splitlines_gui(subs, sel, ADD, ADP, ak) end
-    if btn ~= T("btn_split") then return sel end
+    if btn == T("btn_help") then abrir_help("split"); return tensho_splitlines_gui(subs, sel, ADD, ADP, ak) end
+    if btn ~= T("btn_apply") then return sel end
 
     local new_subs_indices = {}
     

@@ -8,7 +8,7 @@
 
 <div align="left">
 
-  <h1>Aegisub - TenshoScripts v2.0.0</h1>
+  <h1>Aegisub - TenshoScripts v2.1.0</h1>
 
   <p>
     <strong>TenshoScripts</strong> is an essential automation toolkit for Aegisub, specifically developed for the <strong>Nerdcore</strong> and <strong>AMV</strong> scene. This version focuses on fundamental tools to streamline the subtitle workflow for YouTube, now powered by a smart, modular ecosystem.
@@ -16,7 +16,7 @@
   
   <br />
 
-  <a href="https://github.com/yujifkw/TenshoScripts/releases/latest">
+  <a href="https://github.com/yujifkw/Aegisub-TenshoScripts/releases/latest">
     <img src="https://img.shields.io/badge/⬇️%20DOWNLOAD%20FREE%20VERSION-RELEASES%20PAGE-success?style=for-the-badge&logo=lua" height="50">
   </a>
   
@@ -40,7 +40,7 @@
 | **Shake** | Applies natural or chaotic camera shake effects to subtitles, generating organic frame-by-frame `\pos` coordinates. | <img src="ASSETS/shake.gif" width="220"> |
 | **Color Tracker** | Tracks and follows a specific pixel on the screen, dynamically monitoring and adapting its color variations for visual effects. | <img src="ASSETS/ctrack.gif" width="220"> |
 
-> 💡 **Tip:** Learn more about how the automations work in our [User Guide](https://github.com/yujifkw/TenshoScripts/blob/main/HELP.md).
+> 💡 **Tip:** Learn more about how the automations work in our [User Guide](https://github.com/yujifkw/Aegisub-TenshoScripts/blob/main/HELP.md).
 
 ---
 
@@ -119,7 +119,7 @@ This project is licensed under the **MIT License**. See the `LICENSE` file for m
 </div>
 
 <div align="left">
-  <h1>Aegisub - TenshoScripts v2.0.0</h1>
+  <h1>Aegisub - TenshoScripts v2.1.0</h1>
 
   <p>
     O <strong>TenshoScripts</strong> é um toolkit essencial de automação para Aegisub, desenvolvido especificamente para legendas da cena <strong>Nerdcore</strong> e <strong>AMVs</strong>. Esta versão foca em ferramentas fundamentais para agilizar o workflow de legendas para YouTube, trazendo agora um ecossistema inteligente e modular.
@@ -127,7 +127,7 @@ This project is licensed under the **MIT License**. See the `LICENSE` file for m
   
   <br />
 
-  <a href="https://github.com/yujifkw/TenshoScripts/releases/latest">
+  <a href="https://github.com/yujifkw/Aegisub-TenshoScripts/releases/latest">
     <img src="https://img.shields.io/badge/⬇️%20BAIXAR%20VERSÃO%20GRATUÍTA-PÁGINA%20DE%20RELEASES-success?style=for-the-badge&logo=lua" height="50">
   </a>
   
@@ -151,7 +151,7 @@ This project is licensed under the **MIT License**. See the `LICENSE` file for m
 | **Shake** | Aplica efeitos de tremor natural ou caótico (Camera Shake) nas legendas, gerando coordenadas `\pos` orgânicas frame a frame. | <img src="ASSETS/shake.gif" width="220"> |
 | **Color Tracker** | Rastreia e segue um pixel específico da tela, acompanhando e adaptando suas variações de cor dinamicamente para efeitos visuais. | <img src="ASSETS/ctrack.gif" width="220"> |
 
-> 💡 **Dica:** Veja mais detalhes sobre como as automações funcionam no nosso [Guia de Uso](https://github.com/yujifkw/TenshoScripts/blob/main/HELP.md).
+> 💡 **Dica:** Veja mais detalhes sobre como as automações funcionam no nosso [Guia de Uso](https://github.com/yujifkw/Aegisub-TenshoScripts/blob/main/HELP.md).
 
 ---
 

@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.1
 -- Autor: Tenshy
 -- Descrição: Suíte focada em manipulações avançadas de texto e caracteres por bloco, facilitando a aplicação de efeitos tipográficos customizados.
 
@@ -44,9 +44,10 @@ function tensho_textfx_gui(subs, sel, ADD, ADP, ak)
         end
     end
 
+    if tensho_add_hints then tensho_add_hints(tf_gui, "tf") end
     local btn, res = ADD(tf_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_textfx_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("textfx"); return tensho_textfx_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
     if res.rem then randomfont_last_res = res; randomfont_remembered = true end
 

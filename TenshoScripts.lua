@@ -3,10 +3,77 @@
 script_name = "-TenshoScripts (Free)"
 script_description = "A suite of automation tools for subtitles."
 script_author = "Tenshy (@otenshy)"
-script_version = "2.0.0"
+script_version = "2.1.0"
 script_free = true
 script_namespace = "tenshy.TenshoScripts" 
 script_language = "en"
+
+-- Comandos sem janela de console: CreateProcess + CREATE_NO_WINDOW via FFI (cai para io.popen/os.execute se o FFI faltar)
+local ts_ffi_ok, ts_ffi = pcall(require, "ffi")
+local ts_hidden_ready = false
+if ts_ffi_ok then
+    ts_hidden_ready = pcall(function()
+        ts_ffi.cdef[[
+            typedef struct { unsigned long cb; char *lpReserved; char *lpDesktop; char *lpTitle;
+                unsigned long dwX, dwY, dwXSize, dwYSize, dwXCountChars, dwYCountChars, dwFillAttribute, dwFlags;
+                unsigned short wShowWindow, cbReserved2; unsigned char *lpReserved2;
+                void *hStdInput, *hStdOutput, *hStdError; } TS_STARTUPINFOA;
+            typedef struct { void *hProcess; void *hThread; unsigned long dwProcessId; unsigned long dwThreadId; } TS_PROCESS_INFORMATION;
+            int CreateProcessA(const char *app, char *cmd, void *pa, void *ta, int inherit, unsigned long flags,
+                void *env, const char *cwd, TS_STARTUPINFOA *si, TS_PROCESS_INFORMATION *pi);
+            unsigned long WaitForSingleObject(void *h, unsigned long ms);
+            int CloseHandle(void *h);
+        ]]
+        local _ = ts_ffi.C.CreateProcessA
+    end)
+end
+
+local ts_hidden_seq = 0
+
+-- Roda um comando do cmd sem mostrar janela e espera terminar. Retorna true se conseguiu iniciar.
+function tensho_hidden_run(cmd)
+    if ts_hidden_ready then
+        local ok, started = pcall(function()
+            local line = 'cmd /s /c "' .. cmd .. '"'
+            local buf = ts_ffi.new("char[?]", #line + 1)
+            ts_ffi.copy(buf, line)
+            local si = ts_ffi.new("TS_STARTUPINFOA")
+            si.cb = ts_ffi.sizeof(si)
+            si.dwFlags = 1 -- STARTF_USESHOWWINDOW
+            si.wShowWindow = 0 -- SW_HIDE
+            local pi = ts_ffi.new("TS_PROCESS_INFORMATION")
+            if ts_ffi.C.CreateProcessA(nil, buf, nil, nil, 0, 0x08000000, nil, nil, si, pi) == 0 then return false end
+            ts_ffi.C.WaitForSingleObject(pi.hProcess, 0xFFFFFFFF)
+            ts_ffi.C.CloseHandle(pi.hProcess)
+            ts_ffi.C.CloseHandle(pi.hThread)
+            return true
+        end)
+        if ok and started then return true end
+    end
+    os.execute(cmd)
+    return false
+end
+
+-- Roda um comando sem janela e devolve o que ele escreveu na saída padrão
+function tensho_hidden_read(cmd)
+    if ts_hidden_ready then
+        ts_hidden_seq = ts_hidden_seq + 1
+        local out = aegisub.decode_path("?temp") .. "\\tensho_out_" .. ts_hidden_seq .. ".txt"
+        os.remove(out)
+        tensho_hidden_run('(' .. cmd .. ') > "' .. out .. '" 2>nul')
+        local f = io.open(out, "rb")
+        if f then
+            local r = f:read("*a") or ""
+            f:close()
+            os.remove(out)
+            return r
+        end
+    end
+    local h = io.popen(cmd)
+    local r = h and h:read("*a") or ""
+    if h then h:close() end
+    return r
+end
 
 re = nil
 local setup_warnings = {}
@@ -77,7 +144,7 @@ local modules_to_sync = {
 local session_initialized = false
 
 local function ensure_dir_exists(path)
-    os.execute('if not exist "' .. path .. '" mkdir "' .. path .. '"')
+    tensho_hidden_run('if not exist "' .. path .. '" mkdir "' .. path .. '"')
 end
 
 local function get_local_versions()
@@ -122,7 +189,7 @@ local function perform_downloads(mod_list, remote_versions)
     for _, mod in ipairs(mod_list) do
         local target = local_dir .. mod:gsub("/", "\\")
         local url = github_raw_base .. mod
-        os.execute(string.format('curl -s -f -o "%s" "%s"', target, url))
+        tensho_hidden_run(string.format('curl -s -f -o "%s" "%s"', target, url))
         local_versions[mod] = (remote_versions and remote_versions[mod]) or "1.0.0"
     end
     save_local_versions(local_versions)
@@ -144,7 +211,8 @@ function tensho_settings_gui(ADD)
         {class="checkbox", name="cfg_update", label=T("cfg_update"), value=tensho_cfg.auto_update, x=0, y=4, width=2},
     }
 
-    local btn, res = ADD(cfg_gui, {T("btn_save"), T("btn_cancel")})
+    if tensho_add_hints then tensho_add_hints(cfg_gui, "cfg") end
+    local btn, res = ADD(cfg_gui, {T("btn_save"), T("btn_cancel")}, {ok=T("btn_save"), cancel=T("btn_cancel")})
     if btn == T("btn_save") then
         tensho_cfg.alpha_100 = (res.cfg_alpha == T("cfg_alpha_100"))
         tensho_cfg.auto_update = res.cfg_update
@@ -214,9 +282,7 @@ local function setup_session(ADD)
 
     -- 2. Verifica Atualizacoes Se Permitido
     if tensho_cfg.auto_update then
-        local h = io.popen(string.format('curl -s -f "%stensho_versions.txt"', github_raw_base))
-        local vers_data = h and h:read("*a") or ""
-        if h then h:close() end
+        local vers_data = tensho_hidden_read(string.format('curl -s -f "%stensho_versions.txt"', github_raw_base))
 
         if vers_data ~= "" then
             local remote_versions = {}
@@ -271,6 +337,7 @@ function mostrar_gui_mestre(subs, sel, act)
             {class="dropdown", name="tool_select", items=ferramentas, value=tensho_cfg.last_tool, x=0, y=1, width=2},
         }
 
+        if tensho_add_hints then tensho_add_hints(main_gui_config, "master") end
         local btn, res_main = ADD(main_gui_config, botoes, {ok=T("btn_exec"), cancel=T("btn_cancel")})
 
         if btn == T("btn_settings") then
