@@ -3,7 +3,7 @@
 script_name = "-TenshoScripts (Free)"
 script_description = "A suite of automation tools for subtitles."
 script_author = "Tenshy (@otenshy)"
-script_version = "2.1.1"
+script_version = "2.1.0"
 script_free = true
 script_namespace = "tenshy.TenshoScripts" 
 script_language = "en"
