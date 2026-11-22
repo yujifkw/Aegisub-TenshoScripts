@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.5
 
 STAG = "^{\\[^}]-}" -- Tag de início de linha
 ATAG="{[*>]?\\[^}]-}" -- Qualquer tag
@@ -45,14 +45,35 @@ karafx_remembered = false
 tensho_glitch_logic = nil
 tensho_curves_logic = nil
 tensho_rainbow_logic = nil
-tensho_reversek_logic = nil
+tensho_karafx_logic = nil
 tensho_tradutor_logic = nil
 tensho_tradutor_nuvem = nil
 
-help_url = "https://github.com/yujifkw/TenshoScripts/blob/main/HELP.md"
+help_url = "https://github.com/yujifkw/Aegisub-TenshoScripts/blob/main/HELP.md"
 
-function abrir_help()
-    os.execute('start "" "' .. help_url .. '"')
+-- Abre o HELP.md na seção da ferramenta e no idioma atual (âncoras "en-<ferramenta>" / "pt-<ferramenta>").
+-- Sem argumento, abre o topo da página.
+function abrir_help(ferramenta)
+    local url = help_url
+    if type(ferramenta) == "string" and ferramenta ~= "" then
+        local lang = (tensho_cfg and tensho_cfg.lang) or script_language or "en"
+        url = url .. "#" .. (lang == "pt" and "pt-" or "en-") .. ferramenta
+    end
+    local cmd = 'start "" "' .. url .. '"'
+    if tensho_hidden_run then tensho_hidden_run(cmd) else os.execute(cmd) end
+end
+
+-- Preenche a dica (hint) de cada controle a partir do i18n, chave "h_<prefixo>_<name>".
+-- Não sobrescreve dicas já definidas. Caixas "Lembrar Último" usam a dica comum h_rem_last.
+function tensho_add_hints(gui, prefix)
+    for _, c in ipairs(gui) do
+        if c.name and c.class ~= "label" and not c.hint then
+            local key = (c.label == T("rem_last")) and "h_rem_last" or ("h_" .. prefix .. "_" .. c.name)
+            local txt = T(key)
+            if txt ~= key then c.hint = txt end
+        end
+    end
+    return gui
 end
 
 -- ==================================================================================================================================
@@ -665,4 +686,107 @@ function get_smart_alpha(line_start, line_end, global_st, global_et, fade_in, fa
     end
     
     return alpha_tags
+end
+
+-- Fade para linhas geradas (compatível com YouTube): \fad(in,out) de uma linha original vira níveis de \alpha,
+-- um por linha gerada. (\fade com 7 argumentos não funciona no YouTube.)
+tensho_fade_step = 40 -- ms por nível de alpha dentro das rampas do fade
+
+-- Extrai o \fad(entrada,saída) de um texto e devolve: texto sem o \fad, entrada, saída.
+function tensho_take_fad(text)
+    local fin, fout = text:match("\\fad%((%d+),%s*(%d+)%)")
+    fin, fout = tonumber(fin) or 0, tonumber(fout) or 0
+    return (text:gsub("\\fad%b()", ""):gsub("\\fade%b()", "")), fin, fout
+end
+
+-- Visibilidade (0 = invisível, 1 = totalmente visível) do fade no instante t (ms absolutos)
+function tensho_fade_factor(fin, fout, ost, oet, t)
+    if fin > 0 and t < ost + fin then return math.max(0, math.min(1, (t - ost) / fin)) end
+    if fout > 0 and t > oet - fout then return math.max(0, math.min(1, (oet - t) / fout)) end
+    return 1
+end
+
+-- Próximo instante (> t) em que o nível do fade muda
+local function fade_next(fin, fout, ost, oet, t, step)
+    local in_end, out_start = ost + fin, oet - fout
+    if fin > 0 and t < in_end then
+        return math.min(in_end, ost + (math.floor((t - ost) / step) + 1) * step)
+    end
+    if fout > 0 and t >= out_start then
+        return math.min(oet, out_start + (math.floor((t - out_start) / step) + 1) * step)
+    end
+    if fout > 0 and t < out_start then return out_start end
+    return math.huge
+end
+
+-- Divide [s,e] em pedaços de nível constante: {{s=, e=, f=}, ...}
+function tensho_fade_pieces(fin, fout, ost, oet, s, e, step)
+    step = step or tensho_fade_step or 40
+    local out, t = {}, s
+    while t < e do
+        local nxt = math.min(e, fade_next(fin, fout, ost, oet, t, step))
+        if nxt <= t then nxt = e end
+        out[#out + 1] = { s = t, e = nxt, f = tensho_fade_factor(fin, fout, ost, oet, (t + nxt) / 2) }
+        t = nxt
+    end
+    return out
+end
+
+-- Alphas (0-255) dos 4 componentes do estilo; sem estilo, tudo 0
+function tensho_style_alphas(style)
+    local out = {}
+    for i = 1, 4 do
+        local c = style and style["color" .. i] or ""
+        out[i] = tonumber(tostring(c):match("&H(%x%x)%x%x%x%x%x%x")) or 0
+    end
+    return out
+end
+
+-- Multiplica a visibilidade do texto por f: todo \alpha / \1a-\4a explícito é recalculado e o bloco inicial
+-- ganha o alpha base (do estilo) já ajustado, para o que não tem tag.
+function tensho_scale_alpha(text, f, base)
+    if f >= 1 then return text end
+    local function m(v) return string.format("&H%02X&", math.floor(255 - (255 - v) * f + 0.5)) end
+    text = text:gsub("\\alpha&H(%x+)&", function(h) return "\\alpha" .. m(tonumber(h, 16) or 0) end)
+    text = text:gsub("\\([1-4])a&H(%x+)&", function(n, h) return "\\" .. n .. "a" .. m(tonumber(h, 16) or 0) end)
+    base = base or { 0, 0, 0, 0 }
+    local lead = string.format("\\1a%s\\2a%s\\3a%s\\4a%s", m(base[1]), m(base[2]), m(base[3]), m(base[4]))
+    if text:match("^{") then return (text:gsub("^{", "{" .. lead, 1)) end
+    return "{" .. lead .. "}" .. text
+end
+
+-- Insere em subs (na posição pos) a linha nl (que já tem start/end e texto finais) aplicando o fade da linha
+-- original: fad = {entrada, saída, início_original, fim_original}. Se o fade cair dentro do tempo de nl, ela é
+-- dividida em pedaços, cada um com seu \alpha; \move e \t são reajustados para cada pedaço.
+-- Retorna quantas linhas foram inseridas.
+function tensho_insert_faded(subs, pos, nl, fad, style_alphas)
+    local fin, fout, ost, oet = fad and fad[1] or 0, fad and fad[2] or 0, fad and fad[3] or 0, fad and fad[4] or 0
+    if fin <= 0 and fout <= 0 then
+        subs.insert(pos, nl)
+        return 1
+    end
+    local s, e = nl.start_time, nl.end_time
+    local n = 0
+    for _, p in ipairs(tensho_fade_pieces(fin, fout, ost, oet, s, e)) do
+        local pl = table.copy(nl)
+        pl.start_time, pl.end_time = p.s, p.e
+        local txt = nl.text
+        if p.s ~= s or p.e ~= e then
+            local shift = p.s - s
+            if shift ~= 0 then
+                txt = txt:gsub("\\t%((%-?[%d%.]+),(%-?[%d%.]+),", function(a, b)
+                    return string.format("\\t(%d,%d,", tonumber(a) - shift, tonumber(b) - shift)
+                end)
+            end
+            txt = txt:gsub("\\move%(([%d%.%-]+),([%d%.%-]+),([%d%.%-]+),([%d%.%-]+)%)", function(x1, y1, x2, y2)
+                x1, y1, x2, y2 = tonumber(x1), tonumber(y1), tonumber(x2), tonumber(y2)
+                local k1, k2 = (p.s - s) / (e - s), (p.e - s) / (e - s)
+                return string.format("\\move(%.2f,%.2f,%.2f,%.2f)", x1 + (x2 - x1) * k1, y1 + (y2 - y1) * k1, x1 + (x2 - x1) * k2, y1 + (y2 - y1) * k2)
+            end)
+        end
+        pl.text = tensho_scale_alpha(txt, p.f, style_alphas)
+        subs.insert(pos + n, pl)
+        n = n + 1
+    end
+    return n
 end

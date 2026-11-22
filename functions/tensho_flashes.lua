@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.1
 -- Autor: Tenshy
 -- Descrição: Gera efeitos de brilho intermitente ou flashes dinâmicos em partes específicas do texto da legenda para destacar momentos de impacto.
 
@@ -31,9 +31,10 @@ function tensho_flashes_gui(subs, sel, ADD, ADP, ak)
         end
     end
 
+    if tensho_add_hints then tensho_add_hints(flash_gui, "fl") end
     local btn, res_f = ADD(flash_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_flashes_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("flashes"); return tensho_flashes_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
 
     if res_f.rem_flashes then flashes_last_res = res_f; flashes_remembered = true end

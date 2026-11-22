@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.3
 -- Autor: Tenshy
 -- Descrição: Ferramenta de contagem e numeração progressiva de quadros ou elementos para marcações técnicas em linhas de legendas.
 
@@ -99,10 +99,11 @@ function tensho_counter_gui(subs, sel, ADD, ADP, ak)
         {x=0,y=9,width=6,class="label",label=""}
     }
 
+    if tensho_add_hints then tensho_add_hints(ctr_gui, "ct") end
     local btn, res = ADD(ctr_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_counter_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("counter"); return tensho_counter_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
 
     if res.rem_ctr then counter_last_res = table.copy(res); counter_remembered = true end
@@ -161,6 +162,9 @@ function tensho_counter_gui(subs, sel, ADD, ADP, ak)
         -- Limpeza Profunda das Tags Iniciais
         local STAG = "^{\\[^}]-}"
         local initial_tags = line.text:match(STAG) or "{}"
+        -- \fad não pode ir para cada linha gerada: é recalculado como \fade por linha
+        local fad_in, fad_out = 0, 0
+        if tensho_take_fad then _, fad_in, fad_out = tensho_take_fad(initial_tags) end
         initial_tags = initial_tags:gsub("\\pos%b()", ""):gsub("\\move%b()", ""):gsub("\\fad%b()", ""):gsub("\\t%b()", ""):gsub("\\an%d", "")
         
         -- Monta as Tags Base (Valores Iniciais da Coluna Direita)
@@ -172,6 +176,7 @@ function tensho_counter_gui(subs, sel, ADD, ADP, ak)
         initial_tags = tagmerge(initial_tags)
         
         local offset = 1
+        local fade_style_alpha = tensho_style_alphas and tensho_style_alphas(stylechk(subs, res.style_name)) or nil
 
         -- Header
         local header_line = table.copy(line)
@@ -230,18 +235,26 @@ function tensho_counter_gui(subs, sel, ADD, ADP, ak)
                 nl.text = final_tags .. cur_val
                 nl.effect = "Counter"
                 nl.comment = false
-                subs.insert(idx + offset, nl)
-                table.insert(new_indices, idx + offset)
-                offset = offset + 1
+
+                -- o \fad da linha original vira níveis de \alpha (uma linha por nível), compatível com o YouTube
+                local function put(l)
+                    local n_ins = 1
+                    if tensho_insert_faded then
+                        n_ins = tensho_insert_faded(subs, idx + offset, l, {fad_in, fad_out, st, et}, fade_style_alpha)
+                    else
+                        subs.insert(idx + offset, l)
+                    end
+                    for k = 0, n_ins - 1 do table.insert(new_indices, idx + offset + k) end
+                    offset = offset + n_ins
+                end
+                put(nl)
 
                 -- Criação do Mirror
                 if res.mirror then
                     local nl_m = table.copy(nl)
                     local mirror_x = res_x - res.px
                     nl_m.text = nl_m.text:gsub("\\pos%([%d%.%-]+,([%d%.%-]+)%)", string.format("\\pos(%.1f,%%1)", mirror_x))
-                    subs.insert(idx + offset, nl_m)
-                    table.insert(new_indices, idx + offset)
-                    offset = offset + 1
+                    put(nl_m)
                 end
             end
         end

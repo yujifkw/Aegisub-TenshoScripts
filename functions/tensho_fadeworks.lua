@@ -1,4 +1,4 @@
--- version: 3.0.0
+-- version: 3.0.1
 -- Autor: Tenshy & unanimated
 -- Descrição: Automatiza a criação de efeitos de entrada e saída (fades) em legendas de forma fluida, calculando transições suaves de opacidade por caractere ou linha.
 
@@ -957,13 +957,14 @@ function tensho_fadeworks_gui(subs, sel, ADD, ADP, ak)
         for _, control in ipairs(GUI) do if control.name == "rem" then control.value = res.rem end end
     end
     
+    if tensho_add_hints then tensho_add_hints(GUI, "fw") end
     P, res = ADD(GUI, {T("btn_apply"), T("fw_btn_byltr"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if P == T("btn_back") then 
         return "BACK" 
     end
 
     if P == T("btn_help") then
-        abrir_help()
+        abrir_help("fadeworks")
         return tensho_fadeworks_gui(subs, sel, ADD, ADP, ak)
     end
 

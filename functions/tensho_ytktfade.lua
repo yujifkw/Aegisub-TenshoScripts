@@ -1,4 +1,4 @@
--- version: 1.0.0
+-- version: 1.0.1
 -- Autor: Tenshy
 -- Descrição: Ferramenta focada em animações e efeitos de fade inspirados no estilo tradicional de karaokês do YouTube.
 
@@ -11,9 +11,10 @@ function tensho_ytkt_fade_gui(subs, sel, ADD, ADP, ak)
         {class="label", x=0, y=3, width=1, label="" }
     }
 
+    if tensho_add_hints then tensho_add_hints(ytkt_gui, "yk") end
     local btn, res_y = ADD(ytkt_gui, {T("btn_apply"), T("btn_back"), T("btn_help"), T("btn_cancel")}, {ok=T("btn_apply"), cancel=T("btn_cancel")})
     if btn == T("btn_back") then return "BACK" end
-    if btn == T("btn_help") then abrir_help(); return tensho_ytkt_fade_gui(subs, sel, ADD, ADP, ak) end
+    if btn == T("btn_help") then abrir_help("ytkt"); return tensho_ytkt_fade_gui(subs, sel, ADD, ADP, ak) end
     if btn ~= T("btn_apply") then if ak then ak() else aegisub.cancel() end return sel end
 
     for z, idx in ipairs(sel) do
