@@ -1,4 +1,4 @@
--- version: 1.1.5
+-- version: 1.1.6
 
 i18n = {
     pt = {
@@ -173,6 +173,7 @@ i18n = {
         tr_style = "Contexto/estilo (opcional):", tr_gem_key = "Chave Gemini própria (opcional):",
         tr_prog = "Traduzindo %d/%d...", tr_none = "Aviso: nenhuma linha com texto visível foi selecionada.",
         tr_err_net = "Erro: sem resposta do servidor de tradução. Verifique sua internet.",
+        tr_err_timeout = "O servidor de tradução demorou demais para responder (a IA está sobrecarregada). Tente de novo em alguns minutos ou use sua própria chave Gemini gratuita.",
         tr_err_auth = "Erro: licença não autorizada para o tradutor (chave inválida, revogada ou outra máquina).",
         tr_err_quota = "Você atingiu a cota diária de tradução. Tente amanhã ou cole sua própria chave Gemini gratuita (aistudio.google.com/apikey) no campo da janela.",
         tr_err_busy = "O tradutor compartilhado está ocupado ou esgotou o limite de hoje. Tente em alguns minutos ou use sua própria chave Gemini gratuita.",
@@ -354,6 +355,7 @@ i18n = {
         tr_style = "Context/style (optional):", tr_gem_key = "Your own Gemini key (optional):",
         tr_prog = "Translating %d/%d...", tr_none = "Warning: no line with visible text was selected.",
         tr_err_net = "Error: no response from the translation server. Check your internet.",
+        tr_err_timeout = "The translation server took too long to answer (the AI is overloaded). Try again in a few minutes or use your own free Gemini key.",
         tr_err_auth = "Error: license not authorized for the translator (invalid key, revoked, or another machine).",
         tr_err_quota = "You reached the daily translation quota. Try tomorrow or paste your own free Gemini key (aistudio.google.com/apikey) in the dialog field.",
         tr_err_busy = "The shared translator is busy or hit today's limit. Try again in a few minutes or use your own free Gemini key.",

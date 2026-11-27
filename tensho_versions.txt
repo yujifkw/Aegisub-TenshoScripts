@@ -1,5 +1,5 @@
 core/globals.lua=1.0.5
-core/i18n.lua=1.1.5
+core/i18n.lua=1.1.6
 functions/tensho_colortrack.lua=1.1.1
 functions/tensho_counter.lua=1.0.3
 functions/tensho_fadeworks.lua=3.0.1
